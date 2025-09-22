@@ -6,22 +6,22 @@ def install_requirements():
     """Install dependencies from requirements.txt"""
     req_file = os.path.join(project_dir, "requirements.txt")
     if os.path.exists(req_file):
-        print(f"Installing dependencies from {req_file} ...")
+        print(f"📦 Installing dependencies from {req_file} ...")
         subprocess.check_call(["pip", "install", "-r", req_file])
     else:
         print("⚠️ No requirements.txt found!")
 
 def extract_zip_files():
-    """Extract Posts.zip and Comments.zip inside data/"""
+    """Extract posts.zip and comments.zip inside data/"""
     data_dir = os.path.join(project_dir, "data")
     if not os.path.exists(data_dir):
         print("⚠️ No data directory found!")
         return
 
-    for zip_name in ["Posts.zip", "Comments.zip"]:
+    for zip_name in ["posts.zip", "comments.zip"]:  # lowercase names
         zip_path = os.path.join(data_dir, zip_name)
         if os.path.exists(zip_path):
-            print(f"Extracting {zip_name} ...")
+            print(f"📂 Extracting {zip_name} ...")
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
                 zip_ref.extractall(data_dir)
         else:
