@@ -3,10 +3,10 @@ import os
 import pandas as pd
 import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
-import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
+import matplotlib.pyplot as plt
 
-# === NLTK DOWNLOADS ===
+# === DOWNLOAD NLTK RESOURCES ===
 nltk.download('punkt')
 
 # === HELPER: load posts safely from Posts.xml ===
@@ -21,14 +21,15 @@ def load_posts(file_path, max_rows=None):
             break
     return pd.DataFrame(rows)
 
-# === HELPER: count words and sentences ===
+# === HELPER: count words & sentences ===
 def count_words_sentences(text):
-    words = word_tokenize(str(text))
-    sentences = sent_tokenize(str(text))
+    text = str(text)  # ensure string
+    words = word_tokenize(text)
+    sentences = sent_tokenize(text)
     return len(words), len(sentences)
 
 # === LOAD DATA ===
-data_dir = os.path.join(os.getcwd(), "data")  # Colab cwd should be repo root
+data_dir = os.path.join(os.getcwd(), "data")
 posts_path = os.path.join(data_dir, "Posts.xml")
 print(f"Loading posts from {posts_path} ...")
 posts_df = load_posts(posts_path, max_rows=10000)
@@ -39,14 +40,14 @@ print("Loaded posts:", posts_df.shape)
 # -----------------------
 # 1️⃣ Compute words and sentences for questions
 # -----------------------
-posts_df['q_words'], posts_df['q_sentences'] = zip(*posts_df['Body'].astype(str).map(count_words_sentences))
-posts_df['t_words'], posts_df['t_sentences'] = zip(*posts_df['Title'].astype(str).map(count_words_sentences))
+posts_df['q_words'], posts_df['q_sentences'] = zip(*posts_df['Body'].map(count_words_sentences))
+posts_df['t_words'], posts_df['t_sentences'] = zip(*posts_df['Title'].map(count_words_sentences))
 
 # -----------------------
 # 2️⃣ Filter answers (PostTypeId = 2 → answer)
 # -----------------------
 answers_df = posts_df[posts_df['PostTypeId'] == '2'].copy()
-answers_df['a_words'], answers_df['a_sentences'] = zip(*answers_df['Body'].astype(str).map(count_words_sentences))
+answers_df['a_words'], answers_df['a_sentences'] = zip(*answers_df['Body'].map(count_words_sentences))
 
 # -----------------------
 # 3️⃣ Compute averages for words & sentences
@@ -66,12 +67,12 @@ print("\nAverage number of answers per question:", avg_answers_per_question)
 # -----------------------
 # 5️⃣ Number of questions with no answers
 # -----------------------
-question_ids = posts_df[posts_df['PostTypeId'] == '1']['Id']  # all question IDs
+question_ids = posts_df[posts_df['PostTypeId'] == '1']['Id']
 questions_with_answers = answers_df['ParentId'].unique()
 questions_no_answers = set(question_ids) - set(questions_with_answers)
 print("Number of questions with no answers:", len(questions_no_answers))
 
-# Examples of unanswered questions (first 300 characters)
+# Examples of unanswered questions (first 300 chars)
 unanswered_examples = posts_df[posts_df['Id'].isin(questions_no_answers)]
 print("\nExamples of unanswered questions (first 300 chars):")
 for i, text in enumerate(unanswered_examples['Body'].astype(str).head(5)):
