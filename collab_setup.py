@@ -18,7 +18,7 @@ def extract_zip_files():
         print("⚠️ No data directory found!")
         return
 
-    for zip_name in ["Posts.zip", "Comments.zip"]:  # updated to match your repo
+    for zip_name in ["Posts.zip", "Comments.zip"]:  # updated to match repo filenames
         zip_path = os.path.join(data_dir, zip_name)
         if os.path.exists(zip_path):
             print(f"📂 Extracting {zip_name} ...")
@@ -26,7 +26,6 @@ def extract_zip_files():
                 zip_ref.extractall(data_dir)
         else:
             print(f"⚠️ {zip_name} not found in {data_dir}")
-
 
 if __name__ == "__main__":
     # Detect repo directory
