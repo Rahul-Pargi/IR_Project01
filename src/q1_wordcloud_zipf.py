@@ -44,10 +44,10 @@ def clean_html(text):
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
-# === LOAD DATA (lowercase filenames) ===
+# === LOAD DATA (updated filenames to match repo) ===
 data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
-posts_path = os.path.join(data_dir, "posts.xml")
-comments_path = os.path.join(data_dir, "comments.xml")  # 🔥 added
+posts_path = os.path.join(data_dir, "Posts.xml")       # ✅ uppercase
+comments_path = os.path.join(data_dir, "Comments.xml") # ✅ uppercase
 
 print(f"Loading posts from {posts_path} ...")
 posts_df = load_posts(posts_path, max_rows=10000)
@@ -58,12 +58,12 @@ comments_df = load_posts(comments_path, max_rows=10000)
 print("Loaded comments:", comments_df.shape)
 
 if 'Body' not in posts_df.columns:
-    raise RuntimeError("No 'Body' column found in posts.xml rows. Check the XML structure.")
+    raise RuntimeError("No 'Body' column found in Posts.xml rows. Check the XML structure.")
 
 # === PREPROCESS TEXT ===
 bodies_clean = posts_df['Body'].astype(str).fillna('').map(clean_html)
 all_text = " ".join(bodies_clean.tolist()).lower()
-tokens = word_tokenize(all_text)  # ✅ works now
+tokens = word_tokenize(all_text)
 tokens_alpha = [t for t in tokens if t.isalpha()]
 
 # === FREQUENCY COUNTS (before removing stopwords) ===
