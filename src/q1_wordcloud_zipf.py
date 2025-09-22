@@ -16,6 +16,9 @@ from wordcloud import WordCloud
 import numpy as np
 import os
 
+# For inline plotting in Colab
+%matplotlib inline
+
 # === DOWNLOAD NLTK DATA ===
 nltk.download('punkt')
 nltk.download('punkt_tab')
@@ -81,15 +84,21 @@ top20_no_stop_dict = dict(top20_no_stop)
 # === GENERATE WORDCLOUDS ===
 wc_all = WordCloud(width=800, height=400, background_color='white', max_words=20)
 wc_all.generate_from_frequencies(top20_all_dict)
-wc_all.to_file("top20_raw.png")
 
 wc_nostop = WordCloud(width=800, height=400, background_color='white', max_words=20)
 wc_nostop.generate_from_frequencies(top20_no_stop_dict)
-wc_nostop.to_file("top20_nostop.png")
 
-print("✅ WordCloud images saved: top20_raw.png and top20_nostop.png")
+# === DISPLAY: WordClouds inline ===
+fig, axes = plt.subplots(1, 2, figsize=(20, 8))
+axes[0].imshow(wc_all, interpolation='bilinear')
+axes[0].set_title('Top-20 words (raw tokens — includes stopwords)', fontsize=14)
+axes[0].axis('off')
+axes[1].imshow(wc_nostop, interpolation='bilinear')
+axes[1].set_title('Top-20 words (stopwords removed)', fontsize=14)
+axes[1].axis('off')
+plt.show()
 
-# === PLOT TOP-20 BARS ===
+# === DISPLAY: top-20 bars inline ===
 top20_all_df = pd.DataFrame(top20_all, columns=['word', 'count']).reset_index(drop=True)
 top20_no_stop_df = pd.DataFrame(top20_no_stop, columns=['word', 'count']).reset_index(drop=True)
 
@@ -97,37 +106,29 @@ plt.figure(figsize=(12,6))
 plt.bar(top20_all_df['word'], top20_all_df['count'], color='skyblue')
 plt.title("Top-20 words (raw tokens — includes stopwords)")
 plt.xticks(rotation=45)
-plt.tight_layout()
-plt.savefig("top20_raw_bar.png")
-plt.close()
+plt.show()
 
 plt.figure(figsize=(12,6))
 plt.bar(top20_no_stop_df['word'], top20_no_stop_df['count'], color='orange')
 plt.title("Top-20 words (stopwords removed)")
 plt.xticks(rotation=45)
-plt.tight_layout()
-plt.savefig("top20_nostop_bar.png")
-plt.close()
+plt.show()
 
-print("✅ Top-20 bar plots saved: top20_raw_bar.png and top20_nostop_bar.png")
-
-# === ZIPF'S LAW PLOTS ===
+# === ZIPF'S LAW: linear plot ===
 freqs = np.array(sorted(counts_no_stop.values(), reverse=True))
 N = min(1000, len(freqs))
 ranks = np.arange(1, N + 1)
 freqs_top = freqs[:N]
 
-# Linear rank-frequency
 plt.figure(figsize=(10,5))
 plt.plot(ranks, freqs_top)
 plt.xlabel('Rank')
 plt.ylabel('Frequency')
 plt.title(f'Rank vs Frequency (top {N} words)')
 plt.grid(True)
-plt.savefig("rank_vs_freq.png")
-plt.close()
+plt.show()
 
-# Log-Log plot
+# === ZIPF'S LAW: log-log plot ===
 log_ranks = np.log(ranks)
 log_freqs = np.log(freqs_top)
 slope, intercept = np.polyfit(log_ranks, log_freqs, 1)
@@ -140,10 +141,7 @@ plt.xlabel('log(Rank)')
 plt.ylabel('log(Frequency)')
 plt.title(f'Zipf plot (log-log). Slope ~= {slope:.3f}, R^2 = {1 - np.sum((log_freqs - pred_log)**2)/np.sum((log_freqs - np.mean(log_freqs))**2):.3f}')
 plt.grid(True)
-plt.savefig("zipf_loglog.png")
-plt.close()
-
-print("✅ Zipf plots saved: rank_vs_freq.png and zipf_loglog.png")
+plt.show()
 
 # === PRINT TOP-20 TABLES ===
 print("\nTop-20 (raw tokens):")
@@ -158,4 +156,4 @@ added_after_removal = set_nostop - set_all
 print("\nWords removed from top-20 by stopword filtering (likely stopwords):", removed_by_stopword)
 print("New words that appear in top-20 after stopword removal:", added_after_removal)
 
-print("\n✅ All processing complete. Check PNG files for graphical plots.")
+print("\n✅ All processing complete. Plots are displayed inline in Colab.")
