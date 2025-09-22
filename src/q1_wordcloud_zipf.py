@@ -21,7 +21,7 @@ nltk.download('punkt')
 nltk.download('punkt_tab')
 nltk.download('stopwords')
 
-# === HELPER: load posts safely from xml (iterparse to avoid memory blowup) ===
+# === HELPER: load XML safely ===
 def load_posts(file_path, max_rows=None):
     rows = []
     context = ET.iterparse(file_path, events=('end',))
@@ -33,7 +33,7 @@ def load_posts(file_path, max_rows=None):
             break
     return pd.DataFrame(rows)
 
-# === HELPER: clean HTML ===
+# === HELPER: clean HTML text ===
 def clean_html(text):
     if not isinstance(text, str):
         return ''
@@ -44,7 +44,7 @@ def clean_html(text):
     text = re.sub(r'\s+', ' ', text)
     return text.strip()
 
-# === LOAD DATA (updated filenames to match repo) ===
+# === LOAD DATA (updated filenames) ===
 data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
 posts_path = os.path.join(data_dir, "Posts.xml")       # ✅ uppercase
 comments_path = os.path.join(data_dir, "Comments.xml") # ✅ uppercase
@@ -60,13 +60,13 @@ print("Loaded comments:", comments_df.shape)
 if 'Body' not in posts_df.columns:
     raise RuntimeError("No 'Body' column found in Posts.xml rows. Check the XML structure.")
 
-# === PREPROCESS TEXT ===
+# === CLEAN AND TOKENIZE TEXT ===
 bodies_clean = posts_df['Body'].astype(str).fillna('').map(clean_html)
 all_text = " ".join(bodies_clean.tolist()).lower()
 tokens = word_tokenize(all_text)
 tokens_alpha = [t for t in tokens if t.isalpha()]
 
-# === FREQUENCY COUNTS (before removing stopwords) ===
+# === FREQUENCY COUNTS (raw) ===
 counts_all = Counter(tokens_alpha)
 top20_all = counts_all.most_common(20)
 top20_all_dict = dict(top20_all)
@@ -84,7 +84,7 @@ top20_no_stop_dict = dict(top20_no_stop)
 wc_nostop = WordCloud(width=800, height=400, background_color='white', max_words=20)
 wc_nostop.generate_from_frequencies(top20_no_stop_dict)
 
-# === DISPLAY WORDCLOUDS ===
+# === DISPLAY WORDCLOUDS (graphically) ===
 fig, axes = plt.subplots(1, 2, figsize=(20, 8))
 axes[0].imshow(wc_all, interpolation='bilinear')
 axes[0].set_title('Top-20 words (raw tokens — includes stopwords)', fontsize=14)
@@ -94,7 +94,7 @@ axes[1].set_title('Top-20 words (stopwords removed)', fontsize=14)
 axes[1].axis('off')
 plt.show()
 
-# === PRINT TOP-20 WORDS ===
+# === PRINT TOP-20 TABLES ===
 top20_all_df = pd.DataFrame(top20_all, columns=['word', 'count']).reset_index(drop=True)
 top20_no_stop_df = pd.DataFrame(top20_no_stop, columns=['word', 'count']).reset_index(drop=True)
 print("\nTop-20 (raw tokens):")
@@ -119,26 +119,27 @@ plt.figure(figsize=(10, 5))
 plt.plot(ranks, freqs_top)
 plt.xlabel('Rank')
 plt.ylabel('Frequency')
-plt.title('Rank vs Frequency (top {} words)'.format(N))
+plt.title(f'Rank vs Frequency (top {N} words)')
 plt.grid(True)
 plt.show()
 
+# Log-log plot (Zipf)
 log_ranks = np.log(ranks)
 log_freqs = np.log(freqs_top)
 slope, intercept = np.polyfit(log_ranks, log_freqs, 1)
 pred_log = intercept + slope * log_ranks
-ss_res = np.sum((log_freqs - pred_log) ** 2)
-ss_tot = np.sum((log_freqs - np.mean(log_freqs)) ** 2)
-r2 = 1 - ss_res / ss_tot
 
 plt.figure(figsize=(10, 6))
 plt.scatter(log_ranks, log_freqs, s=10)
-plt.plot(log_ranks, pred_log, linewidth=2)
+plt.plot(log_ranks, pred_log, linewidth=2, color='red')
 plt.xlabel('log(Rank)')
 plt.ylabel('log(Frequency)')
-plt.title('Zipf plot (log-log). Slope ~= {:.3f}, R^2 = {:.3f}'.format(slope, r2))
+plt.title(f'Zipf plot (log-log). Slope ~= {slope:.3f}, R^2 = TBD')
 plt.grid(True)
 plt.show()
 
-print("Log-log linear fit: slope = {:.4f}, intercept = {:.4f}, R^2 = {:.4f}".format(slope, intercept, r2))
+ss_res = np.sum((log_freqs - pred_log) ** 2)
+ss_tot = np.sum((log_freqs - np.mean(log_freqs)) ** 2)
+r2 = 1 - ss_res / ss_tot
+print(f"Log-log linear fit: slope = {slope:.4f}, intercept = {intercept:.4f}, R^2 = {r2:.4f}")
 print("Zipf interpretation: frequency ~ c * rank^{slope}. Zipf's 's' is -slope (expected ~1).")
