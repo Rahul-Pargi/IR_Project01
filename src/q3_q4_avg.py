@@ -1,29 +1,44 @@
-import nltk
-from nltk.tokenize import word_tokenize, sent_tokenize
+# === IMPORTS ===
+import os
+import xml.etree.ElementTree as ET
 import pandas as pd
+import nltk
+from nltk.tokenize import word_tokenize
 
-# Download NLTK resources
+# === DOWNLOAD NLTK DATA ===
 nltk.download('punkt')
 
 # -----------------------
-# Ensure 'Body' and 'Title' exist and fill NaNs
+# Helper: load posts safely from XML
 # -----------------------
-if 'Body' not in posts_df.columns:
-    posts_df['Body'] = ''
-else:
-    posts_df['Body'] = posts_df['Body'].fillna('')
+def load_posts(file_path, max_rows=None):
+    rows = []
+    context = ET.iterparse(file_path, events=('end',))
+    for event, elem in context:
+        if elem.tag == 'row':
+            rows.append(elem.attrib.copy())
+            elem.clear()
+        if max_rows and len(rows) >= max_rows:
+            break
+    return pd.DataFrame(rows)
 
-if 'Title' not in posts_df.columns:
-    posts_df['Title'] = ''
-else:
-    posts_df['Title'] = posts_df['Title'].fillna('')
+# -----------------------
+# Load Posts.xml into posts_df
+# -----------------------
+data_dir = os.path.join(os.getcwd(), "data")  # adjust if needed
+posts_path = os.path.join(data_dir, "Posts.xml")
+posts_df = load_posts(posts_path, max_rows=10000)
+
+# Fill missing Body and Title to avoid errors
+posts_df['Body'] = posts_df['Body'].fillna('')
+posts_df['Title'] = posts_df['Title'].fillna('')
 
 # -----------------------
 # Function to count words & sentences
 # -----------------------
 def count_words_sentences(text):
-    words = word_tokenize(str(text))
-    sentences = sent_tokenize(str(text))
+    words = word_tokenize(text)
+    sentences = nltk.sent_tokenize(text)
     return len(words), len(sentences)
 
 # -----------------------
@@ -50,14 +65,14 @@ print("Answers (Body):", answers_df['a_words'].mean(), "words,", answers_df['a_s
 # -----------------------
 # 4️⃣ Average number of answers per question
 # -----------------------
-answers_per_question = answers_df.groupby('ParentId').size()  # ParentId points to question Id
+answers_per_question = answers_df.groupby('ParentId').size()
 avg_answers_per_question = answers_per_question.mean()
 print("\nAverage number of answers per question:", avg_answers_per_question)
 
 # -----------------------
 # 5️⃣ Number of questions with no answers
 # -----------------------
-question_ids = posts_df[posts_df['PostTypeId'] == '1']['Id']  # all question IDs
+question_ids = posts_df[posts_df['PostTypeId'] == '1']['Id']
 questions_with_answers = answers_df['ParentId'].unique()
 questions_no_answers = set(question_ids) - set(questions_with_answers)
 print("Number of questions with no answers:", len(questions_no_answers))
@@ -67,3 +82,11 @@ print("Number of questions with no answers:", len(questions_no_answers))
 # -----------------------
 questions_with_accepted_answer = posts_df[posts_df['PostTypeId'] == '1']['AcceptedAnswerId'].dropna()
 print("Number of questions with an accepted answer:", len(questions_with_accepted_answer))
+
+# -----------------------
+# 7️⃣ Optional: Examples of unanswered questions (first 300 chars)
+# -----------------------
+unanswered_questions = posts_df[posts_df['Id'].isin(questions_no_answers)]
+print("\nExamples of unanswered questions (first 300 characters):")
+for i, text in enumerate(unanswered_questions['Body'].astype(str).head(5)):
+    print(f"{i+1}. {text[:300]}\n")
