@@ -12,13 +12,13 @@ def install_requirements():
         print("⚠️ No requirements.txt found!")
 
 def extract_zip_files():
-    """Extract posts.zip and comments.zip inside data/"""
+    """Extract Posts.zip and Comments.zip inside data/"""
     data_dir = os.path.join(project_dir, "data")
     if not os.path.exists(data_dir):
         print("⚠️ No data directory found!")
         return
 
-    for zip_name in ["posts.zip", "comments.zip"]:  # lowercase names
+    for zip_name in ["Posts.zip", "Comments.zip"]:  # updated to match your repo
         zip_path = os.path.join(data_dir, zip_name)
         if os.path.exists(zip_path):
             print(f"📂 Extracting {zip_name} ...")
@@ -26,6 +26,7 @@ def extract_zip_files():
                 zip_ref.extractall(data_dir)
         else:
             print(f"⚠️ {zip_name} not found in {data_dir}")
+
 
 if __name__ == "__main__":
     # Detect repo directory
