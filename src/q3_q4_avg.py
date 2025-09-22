@@ -83,10 +83,10 @@ print("Number of questions with no answers:", len(questions_no_answers))
 questions_with_accepted_answer = posts_df[posts_df['PostTypeId'] == '1']['AcceptedAnswerId'].dropna()
 print("Number of questions with an accepted answer:", len(questions_with_accepted_answer))
 
-# -----------------------
-# 7️⃣ Optional: Examples of unanswered questions (first 300 chars)
-# -----------------------
-unanswered_questions = posts_df[posts_df['Id'].isin(questions_no_answers)]
-print("\nExamples of unanswered questions (first 300 characters):")
-for i, text in enumerate(unanswered_questions['Body'].astype(str).head(5)):
-    print(f"{i+1}. {text[:300]}\n")
+# # -----------------------
+# # 7️⃣ Optional: Examples of unanswered questions (first 300 chars)
+# # -----------------------
+# unanswered_questions = posts_df[posts_df['Id'].isin(questions_no_answers)]
+# print("\nExamples of unanswered questions (first 300 characters):")
+# for i, text in enumerate(unanswered_questions['Body'].astype(str).head(5)):
+#     print(f"{i+1}. {text[:300]}\n")
