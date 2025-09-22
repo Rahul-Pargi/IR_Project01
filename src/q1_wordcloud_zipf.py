@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from collections import Counter
 
 nltk.download("punkt")
+nltk.download("punkt_tab")  
 nltk.download("stopwords")
 
 # -----------------------------
