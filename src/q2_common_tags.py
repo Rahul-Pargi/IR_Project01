@@ -23,8 +23,13 @@ data_dir = os.path.join(project_dir, "data")
 posts_path = os.path.join(data_dir, "Posts.xml")
 
 # === LOAD POSTS ===
+# print(f"Loading posts from {posts_path} ...")
+# posts_df = load_posts(posts_path, max_rows=10000)
+# print("Loaded posts:", posts_df.shape)
+
+# === LOAD POSTS ===
 print(f"Loading posts from {posts_path} ...")
-posts_df = load_posts(posts_path, max_rows=10000)
+posts_df = load_posts(posts_path)  # Load all posts
 print("Loaded posts:", posts_df.shape)
 
 if 'Tags' not in posts_df.columns:
