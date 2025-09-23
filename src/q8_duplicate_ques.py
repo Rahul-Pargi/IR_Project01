@@ -1,9 +1,9 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
+import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-import nltk
 import string
 
 # -----------------------
@@ -14,33 +14,19 @@ nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
 # -----------------------
-# 2️⃣ Load Posts.xml with pandas
+# 2️⃣ Load Posts.xml
 # -----------------------
 posts_path = "/content/IR_Project01/data/Posts.xml"
 df = pd.read_xml(posts_path, xpath="//row")
 
-# Keep only questions
-df_questions = df[df['PostTypeId'] == '1'].copy()
-df_questions = df_questions[['Id', 'Title', 'Body']].fillna("")
+# Keep only questions (PostTypeId == 1)
+df_questions = df[df['PostTypeId'] == 1].copy()
+
+# Fill missing values
+df_questions[['Title', 'Body']] = df_questions[['Title', 'Body']].fillna("")
 
 # -----------------------
-# 3️⃣ Combine Title and Body
-# -----------------------
-df_questions['combined_text'] = df_questions['Title'].astype(str) + " " + df_questions['Body'].astype(str)
-
-# -----------------------
-# 4️⃣ Filter out empty/stopword-only posts
-# -----------------------
-def has_valid_words(text):
-    text = text.lower().translate(str.maketrans('', '', string.punctuation))
-    tokens = [w for w in word_tokenize(text) if w.isalpha() and w not in stop_words]
-    return len(tokens) > 0
-
-df_questions = df_questions[df_questions['combined_text'].apply(has_valid_words)]
-print(f"Number of questions after removing empty/stopword-only posts: {len(df_questions)}")
-
-# -----------------------
-# 5️⃣ Normalize text for inspection later
+# 3️⃣ Normalize text
 # -----------------------
 def normalize_text(text):
     text = str(text).lower()
@@ -51,22 +37,31 @@ def normalize_text(text):
 df_questions['norm_title'] = df_questions['Title'].apply(normalize_text)
 df_questions['norm_body'] = df_questions['Body'].apply(normalize_text)
 
+# Combine for TF-IDF (keep some stopwords to avoid empty vocabulary)
+df_questions['combined_text'] = df_questions['Title'].astype(str) + " " + df_questions['Body'].astype(str)
+
 # -----------------------
-# 6️⃣ TF-IDF vectorization
+# 4️⃣ Remove truly empty posts
 # -----------------------
-vectorizer = TfidfVectorizer(stop_words='english')
+df_questions = df_questions[df_questions['combined_text'].str.strip() != ""]
+print(f"Number of questions to process: {len(df_questions)}")
+
+# -----------------------
+# 5️⃣ TF-IDF vectorization
+# -----------------------
+vectorizer = TfidfVectorizer(stop_words='english', max_features=50000)  # limit features to save memory
 X = vectorizer.fit_transform(df_questions['combined_text'])
 
 # -----------------------
-# 7️⃣ Nearest neighbors (memory-efficient)
+# 6️⃣ Nearest neighbors (batch processing to save memory)
 # -----------------------
-nn = NearestNeighbors(metric='cosine', algorithm='brute')  # 'brute' handles sparse matrices
+nn = NearestNeighbors(metric='cosine', algorithm='brute')  # brute works well for sparse matrices
 nn.fit(X)
 
 threshold = 0.8  # cosine similarity threshold
 duplicate_pairs = []
 
-batch_size = 5000  # process in batches to avoid OOM
+batch_size = 5000
 n_posts = X.shape[0]
 
 for start in range(0, n_posts, batch_size):
@@ -85,18 +80,18 @@ for start in range(0, n_posts, batch_size):
 print(f"Total duplicate question pairs found: {len(duplicate_pairs)}")
 
 # -----------------------
-# 8️⃣ Inspect some duplicate pairs
+# 7️⃣ Inspect some duplicate pairs
 # -----------------------
-for i, j in duplicate_pairs[:5]:  # show first 5
-    title_i = set(df_questions.loc[i, 'norm_title'])
-    title_j = set(df_questions.loc[j, 'norm_title'])
-    body_i = set(df_questions.loc[i, 'norm_body'])
-    body_j = set(df_questions.loc[j, 'norm_body'])
+for i, j in duplicate_pairs[:5]:
+    title_i = set(df_questions.iloc[i]['norm_title'])
+    title_j = set(df_questions.iloc[j]['norm_title'])
+    body_i = set(df_questions.iloc[i]['norm_body'])
+    body_j = set(df_questions.iloc[j]['norm_body'])
 
     common_title = title_i.intersection(title_j)
     common_body = body_i.intersection(body_j)
 
-    print(f"Question {df_questions.loc[i, 'Id']} and Question {df_questions.loc[j, 'Id']} are duplicates")
+    print(f"Question {df_questions.iloc[i]['Id']} and Question {df_questions.iloc[j]['Id']} are duplicates")
     print(f"Title common terms ({len(common_title)}): {common_title}")
     print(f"Body common terms ({len(common_body)}): {common_body}")
     print("-" * 80)
