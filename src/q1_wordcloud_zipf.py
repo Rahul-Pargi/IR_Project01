@@ -51,13 +51,23 @@ posts_path = os.path.join(data_dir, "Posts.xml")
 comments_path = os.path.join(data_dir, "Comments.xml")
 
 # === LOAD DATA ===
+# print(f"Loading posts from {posts_path} ...")
+# posts_df = load_posts(posts_path, max_rows=10000)
+# print("Loaded posts:", posts_df.shape)
+
+# print(f"Loading comments from {comments_path} ...")
+# comments_df = load_posts(comments_path, max_rows=10000)
+# print("Loaded comments:", comments_df.shape)
+
+# === LOAD DATA ===
 print(f"Loading posts from {posts_path} ...")
-posts_df = load_posts(posts_path, max_rows=10000)
+posts_df = load_posts(posts_path)  # Removed max_rows, will load all posts
 print("Loaded posts:", posts_df.shape)
 
 print(f"Loading comments from {comments_path} ...")
-comments_df = load_posts(comments_path, max_rows=10000)
+comments_df = load_posts(comments_path)  # Removed max_rows, will load all comments
 print("Loaded comments:", comments_df.shape)
+
 
 if 'Body' not in posts_df.columns:
     raise RuntimeError("No 'Body' column found in Posts.xml rows. Check the XML structure.")
