@@ -25,9 +25,20 @@ def load_posts(file_path, max_rows=None):
 # -----------------------
 # Load Posts.xml into posts_df
 # -----------------------
+# data_dir = os.path.join(os.getcwd(), "data")  # adjust if needed
+# posts_path = os.path.join(data_dir, "Posts.xml")
+# posts_df = load_posts(posts_path, max_rows=10000)
+
+# # Fill missing Body and Title to avoid errors
+# posts_df['Body'] = posts_df['Body'].fillna('')
+# posts_df['Title'] = posts_df['Title'].fillna('')
+
+# -----------------------
+# Load Posts.xml into posts_df
+# -----------------------
 data_dir = os.path.join(os.getcwd(), "data")  # adjust if needed
 posts_path = os.path.join(data_dir, "Posts.xml")
-posts_df = load_posts(posts_path, max_rows=10000)
+posts_df = load_posts(posts_path)  # Load all posts
 
 # Fill missing Body and Title to avoid errors
 posts_df['Body'] = posts_df['Body'].fillna('')
