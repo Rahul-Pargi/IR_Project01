@@ -28,11 +28,18 @@ def load_posts(file_path, max_rows=None):
             break
     return pd.DataFrame(rows)
 
+# # -----------------------
+# # File path to your Posts.xml
+# # -----------------------
+# posts_path = "/content/IR_Project01/data/Posts.xml"  # adjust path
+# posts_df = load_posts(posts_path, max_rows=10000)
+
 # -----------------------
 # File path to your Posts.xml
 # -----------------------
 posts_path = "/content/IR_Project01/data/Posts.xml"  # adjust path
-posts_df = load_posts(posts_path, max_rows=10000)
+posts_df = load_posts(posts_path, max_rows=None)  # <-- Load all posts
+
 
 # -----------------------
 # Ensure required columns exist
