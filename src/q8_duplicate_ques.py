@@ -5,7 +5,6 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import nltk
 import string
-import numpy as np
 
 # -----------------------
 # 1️⃣ Setup
@@ -15,14 +14,19 @@ nltk.download('stopwords')
 stop_words = set(stopwords.words('english'))
 
 # -----------------------
-# 2️⃣ Load Posts.xml with pandas
+# 2️⃣ Load Posts.xml
 # -----------------------
 posts_path = "/content/IR_Project01/data/Posts.xml"
 df = pd.read_xml(posts_path, xpath="//row")
-df = df[['Id', 'Title', 'Body']].fillna("")
 
 # -----------------------
-# 3️⃣ Normalize text
+# 3️⃣ Keep only questions
+# -----------------------
+df_questions = df[df['PostTypeId'] == '1'].copy()
+df_questions = df_questions[['Id', 'Title', 'Body']].fillna("")
+
+# -----------------------
+# 4️⃣ Normalize text
 # -----------------------
 def normalize_text(text):
     text = str(text).lower()
@@ -30,33 +34,34 @@ def normalize_text(text):
     tokens = [word for word in word_tokenize(text) if word.isalpha() and word not in stop_words]
     return tokens
 
-df['norm_title'] = df['Title'].apply(normalize_text)
-df['norm_body'] = df['Body'].apply(normalize_text)
+df_questions['norm_title'] = df_questions['Title'].apply(normalize_text)
+df_questions['norm_body'] = df_questions['Body'].apply(normalize_text)
 
 # Combine for TF-IDF
-df['combined_text'] = df['Title'].astype(str) + " " + df['Body'].astype(str)
+df_questions['combined_text'] = df_questions['Title'].astype(str) + " " + df_questions['Body'].astype(str)
 
 # -----------------------
-# 4️⃣ TF-IDF vectorization
+# 5️⃣ TF-IDF vectorization
 # -----------------------
 vectorizer = TfidfVectorizer(stop_words='english')
-X = vectorizer.fit_transform(df['combined_text'])
+X = vectorizer.fit_transform(df_questions['combined_text'])
 
 # -----------------------
-# 5️⃣ Nearest neighbors (memory-efficient)
+# 6️⃣ Nearest neighbors
 # -----------------------
-nn = NearestNeighbors(metric='cosine', algorithm='brute')  # 'brute' handles sparse matrices efficiently
+nn = NearestNeighbors(metric='cosine', algorithm='brute')  # brute works well for sparse matrices
 nn.fit(X)
 
 threshold = 0.8  # cosine similarity threshold
 duplicate_pairs = []
 
-batch_size = 5000  # process in batches to avoid OOM
+batch_size = 5000
 n_posts = X.shape[0]
 
 for start in range(0, n_posts, batch_size):
     end = min(start + batch_size, n_posts)
-    print(f"Processing posts {start} to {end}...")
+    print(f"Processing questions {start} to {end}...")
+    
     distances, indices = nn.kneighbors(X[start:end], n_neighbors=6)
     
     for i, neighbors in enumerate(indices):
@@ -70,21 +75,22 @@ for start in range(0, n_posts, batch_size):
 print(f"Total duplicate question pairs found: {len(duplicate_pairs)}")
 
 # -----------------------
-# 6️⃣ Inspect some duplicate pairs
+# 7️⃣ Inspect first 5 duplicate pairs
 # -----------------------
-for i, j in duplicate_pairs[:5]:  # show first 5
-    title_i = set(df.loc[i, 'norm_title'])
-    title_j = set(df.loc[j, 'norm_title'])
-    body_i = set(df.loc[i, 'norm_body'])
-    body_j = set(df.loc[j, 'norm_body'])
+for i, j in duplicate_pairs[:5]:
+    title_i = set(df_questions.loc[i, 'norm_title'])
+    title_j = set(df_questions.loc[j, 'norm_title'])
+    body_i = set(df_questions.loc[i, 'norm_body'])
+    body_j = set(df_questions.loc[j, 'norm_body'])
 
     common_title = title_i.intersection(title_j)
     common_body = body_i.intersection(body_j)
 
-    print(f"Question {df.loc[i, 'Id']} and Question {df.loc[j, 'Id']} are duplicates")
+    print(f"Question {df_questions.loc[i, 'Id']} and Question {df_questions.loc[j, 'Id']} are duplicates")
     print(f"Title common terms ({len(common_title)}): {common_title}")
     print(f"Body common terms ({len(common_body)}): {common_body}")
     print("-" * 80)
+
 
 
 # import pandas as pd
