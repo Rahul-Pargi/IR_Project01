@@ -1,5 +1,5 @@
 # ----------------------------
-# boolean_tf_ir_evaluation.py
+# boolean_tf_ir_evaluation_full.py
 # ----------------------------
 import os
 import pandas as pd
@@ -40,23 +40,21 @@ def normalize_text(text):
     return tokens
 
 # ----------------------------
-# 2️⃣ Load posts (subset for speed)
+# 2️⃣ Load all posts efficiently
 # ----------------------------
-def load_posts(file_path, max_rows=None):
+def load_all_posts(file_path):
     posts = []
-    for i, (event, elem) in enumerate(ET.iterparse(file_path, events=("end",))):
+    for event, elem in ET.iterparse(file_path, events=("end",)):
         if elem.tag == "row":
             post_id = elem.attrib.get("Id")
             title = elem.attrib.get("Title", "")
             body = elem.attrib.get("Body", "")
             posts.append({"Id": int(post_id), "Text": title + " " + body})
-            if max_rows and len(posts) >= max_rows:
-                break
-        elem.clear()
+            elem.clear()  # Free memory
     return pd.DataFrame(posts)
 
 # ----------------------------
-# 3️⃣ Build indexes
+# 3️⃣ Build boolean + TF indexes
 # ----------------------------
 def build_indexes(df):
     boolean_index = defaultdict(set)
@@ -118,37 +116,20 @@ def ndcg_at_k(retrieved, relevant, k):
     return dcg / idcg if idcg > 0 else 0
 
 # ----------------------------
-# 7️⃣ Load data and build indexes
+# 7️⃣ Load all posts and build indexes
 # ----------------------------
-posts_df = load_posts(posts_path, max_rows=50000)
+posts_df = load_all_posts(posts_path)
 boolean_index, tf_index, doc_text_map, build_time = build_indexes(posts_df)
 print(f"Built indexes with {len(boolean_index)} unique terms in {build_time:.2f}s")
 
 # ----------------------------
-# 8️⃣ Query set (20 queries)
+# 8️⃣ Example queries (can be extended)
 # ----------------------------
 queries = [
     'Can I download PlayStation 3 games for my PlayStation 4',
     'Playstation payment problem',
     'Downloading games onto a PlayStation 4',
-    'Dark Souls 2: Xbox360 vs PlayStation 3 vs Xbox One vs PlayStation 4',
-    'GTA V won\'t load online',
-    'Trouble downloading GTA5 on XBOX360',
-    'Is digital download GTA5 Faster than Physical copy?',
-    'Do I need to be online to play story mode?',
-    'Do I need to play previous Witchers before Witcher3',
-    'Witcher 3 crashes constantly',
-    'Skyrim reinstalling it with all the mods',
-    'Can I start with Dark souls 2?',
-    'Defeating Moonlight Butterfly in Dark Souls',
-    'Max Farming in Dark Souls III',
-    'What are the different endings of Sekiro?',
-    'How precise is the Deflect Mechanic in Sekiro?',
-    'Can you upgrade the horse in Elden Ring?',
-    'Does dexterity increase weapon art speed in Elden Ring?',
-    'What happens if you defeat the Grafted Scion in the beginning of Elden Ring?',
-    'I don\'t know where to go next in Elden Ring! How do I find out?',
-    'What attributes should a samurai build focus on in Elden Ring?'
+    'Dark Souls 2: Xbox360 vs PlayStation 3 vs Xbox One vs PlayStation 4'
 ]
 
 # ----------------------------
@@ -157,60 +138,24 @@ queries = [
 all_results = []
 
 for query in queries:
-    # Boolean OR search
-    start_time = time.time()
     boolean_docs = boolean_search(query, boolean_index, operator="OR")
-    boolean_time = time.time() - start_time
-
-    # TF ranking search
-    start_time = time.time()
-    tf_docs = tf_ranking(query, tf_index, k=10)
-    tf_time = time.time() - start_time
+    tf_docs = tf_ranking(query, tf_index, k=50)
 
     # Simulate relevance (top-3 as relevant)
     relevant_docs = tf_docs[:3]  # assume TF-based ranking relevance
     prec5_bool = precision_at_k(list(boolean_docs), relevant_docs, 5)
-    prec10_bool = precision_at_k(list(boolean_docs), relevant_docs, 10)
     ndcg5_bool = ndcg_at_k(list(boolean_docs), relevant_docs, 5)
-    ndcg10_bool = ndcg_at_k(list(boolean_docs), relevant_docs, 10)
-
     prec5_tf = precision_at_k(tf_docs, relevant_docs, 5)
-    prec10_tf = precision_at_k(tf_docs, relevant_docs, 10)
     ndcg5_tf = ndcg_at_k(tf_docs, relevant_docs, 5)
-    ndcg10_tf = ndcg_at_k(tf_docs, relevant_docs, 10)
 
     all_results.append({
         "Query": query,
-        "BooleanTime": boolean_time,
-        "TFTime": tf_time,
         "Prec5_Boolean": prec5_bool,
-        "Prec10_Boolean": prec10_bool,
         "nDCG5_Boolean": ndcg5_bool,
-        "nDCG10_Boolean": ndcg10_bool,
         "Prec5_TF": prec5_tf,
-        "Prec10_TF": prec10_tf,
-        "nDCG5_TF": ndcg5_tf,
-        "nDCG10_TF": ndcg10_tf
+        "nDCG5_TF": ndcg5_tf
     })
 
 results_df = pd.DataFrame(all_results)
-
-# ----------------------------
-# 10️⃣ Compute average metrics across 20 queries
-# ----------------------------
-avg_metrics = {
-    "BooleanTime": results_df["BooleanTime"].mean(),
-    "TFTime": results_df["TFTime"].mean(),
-    "Prec5_Boolean": results_df["Prec5_Boolean"].mean(),
-    "Prec10_Boolean": results_df["Prec10_Boolean"].mean(),
-    "nDCG5_Boolean": results_df["nDCG5_Boolean"].mean(),
-    "nDCG10_Boolean": results_df["nDCG10_Boolean"].mean(),
-    "Prec5_TF": results_df["Prec5_TF"].mean(),
-    "Prec10_TF": results_df["Prec10_TF"].mean(),
-    "nDCG5_TF": results_df["nDCG5_TF"].mean(),
-    "nDCG10_TF": results_df["nDCG10_TF"].mean()
-}
-
-print("\n===== Average Metrics Across 20 Queries =====")
-for k, v in avg_metrics.items():
-    print(f"{k}: {v:.4f}")
+print("\n===== Sample Evaluation =====")
+print(results_df)
