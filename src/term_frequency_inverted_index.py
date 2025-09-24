@@ -17,7 +17,7 @@ stop_words = set(stopwords.words('english'))
 # -----------------------
 # 1️⃣ Locate Posts.xml
 # -----------------------
-posts_file = "data/Posts.xml"
+posts_file = "/content/IR_Project01/data/Posts.xml"
 if not os.path.exists(posts_file):
     posts_file = "Posts.xml"
 if not os.path.exists(posts_file):
