@@ -11,7 +11,7 @@ from collections import defaultdict
 # 0️⃣ Define path for Posts.xml
 # ----------------------------
 repo_root = os.getcwd()  # Current working directory
-posts_path = os.path.join(repo_root, "/content/IR_Project01/data/Posts.xml")
+posts_path = os.path.join(repo_root, "data/Posts.xml")
 
 if not os.path.exists(posts_path):
     raise FileNotFoundError(f"{posts_path} not found! Current folder: {os.getcwd()}")
