@@ -9,7 +9,8 @@ import time
 # -----------------------
 # 0️⃣ Ensure required files exist
 # -----------------------
-posts_file = "data/Posts.xml"
+# posts_file = "data/Posts.xml"
+posts_file = "/content/IR_Project01/data/Posts.xml"
 if not os.path.exists(posts_file):
     raise FileNotFoundError(f"{posts_file} not found in current directory: {os.getcwd()}")
 
