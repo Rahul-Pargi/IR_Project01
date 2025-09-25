@@ -54,24 +54,33 @@ def load_all_posts(file_path):
     return pd.DataFrame(posts)
 
 # ----------------------------
-# 3️⃣ Build boolean + TF indexes
+# 3️⃣ Build boolean and TF indexes separately
 # ----------------------------
-def build_indexes(df):
+def build_indexes_separately(df):
     boolean_index = defaultdict(set)
     tf_index = defaultdict(lambda: defaultdict(int))
     doc_text_map = {}
-    start_time = time.time()
 
+    # Boolean index
+    start_time_bool = time.time()
+    for _, row in df.iterrows():
+        doc_id = row["Id"]
+        tokens = normalize_text(row["Text"])
+        for token in tokens:
+            boolean_index[token].add(doc_id)
+    boolean_time = time.time() - start_time_bool
+
+    # TF index
+    start_time_tf = time.time()
     for _, row in df.iterrows():
         doc_id = row["Id"]
         tokens = normalize_text(row["Text"])
         doc_text_map[doc_id] = tokens
         for token in tokens:
-            boolean_index[token].add(doc_id)
             tf_index[token][doc_id] += 1
+    tf_time = time.time() - start_time_tf
 
-    build_time = time.time() - start_time
-    return boolean_index, tf_index, doc_text_map, build_time
+    return boolean_index, tf_index, doc_text_map, boolean_time, tf_time
 
 # ----------------------------
 # 4️⃣ Boolean search (AND/OR)
@@ -119,11 +128,13 @@ def ndcg_at_k(retrieved, relevant, k):
 # 7️⃣ Load all posts and build indexes
 # ----------------------------
 posts_df = load_all_posts(posts_path)
-boolean_index, tf_index, doc_text_map, build_time = build_indexes(posts_df)
-print(f"Built indexes with {len(boolean_index)} unique terms in {build_time:.2f}s")
+boolean_index, tf_index, doc_text_map, boolean_time, tf_time = build_indexes_separately(posts_df)
+print(f"Boolean index build time: {boolean_time:.2f}s")
+print(f"TF index build time: {tf_time:.2f}s")
+print(f"Built indexes with {len(boolean_index)} unique terms")
 
 # ----------------------------
-# 8️⃣ Example queries (can be extended)
+# 8️⃣ Example queries (20 queries)
 # ----------------------------
 queries = [
     "Can I download PlayStation 3 games for my PlayStation 4",
@@ -151,29 +162,26 @@ queries = [
 # ----------------------------
 # 9️⃣ Run evaluation for both models (Top-10)
 # ----------------------------
-TOP_K = 10  # Evaluate top 10 posts per query
+TOP_K = 10
 all_results = []
 
 for query in queries:
-    # Retrieve top-k for Boolean retrieval
+    # Boolean
     boolean_docs_full = boolean_search(query, boolean_index, operator="OR")
-    boolean_docs = list(boolean_docs_full)[:TOP_K]  # Limit to top 10
+    boolean_docs = list(boolean_docs_full)[:TOP_K]
 
-    # Retrieve top-k for TF-based ranking
+    # TF
     tf_docs = tf_ranking(query, tf_index, k=TOP_K)
 
-    # Simulate relevance (top-3 as relevant)
-    relevant_docs = tf_docs[:3]  # assume TF-based ranking relevance
+    # Simulate relevance
+    relevant_docs = tf_docs[:3]
 
-    # Compute metrics for Boolean
+    # Compute metrics
     prec_bool = precision_at_k(boolean_docs, relevant_docs, TOP_K)
     ndcg_bool = ndcg_at_k(boolean_docs, relevant_docs, TOP_K)
-
-    # Compute metrics for TF-based ranking
     prec_tf = precision_at_k(tf_docs, relevant_docs, TOP_K)
     ndcg_tf = ndcg_at_k(tf_docs, relevant_docs, TOP_K)
 
-    # Store results
     all_results.append({
         "Query": query,
         f"Prec@{TOP_K}_Boolean": prec_bool,
@@ -187,9 +195,8 @@ print(f"\n===== Evaluation Results (Top-{TOP_K}) =====")
 print(results_df)
 
 
-
 # # ----------------------------
-# # boolean_tf_ir_evaluation_full.py
+# # boolean_tf_ir_evaluation_top10.py
 # # ----------------------------
 # import os
 # import pandas as pd
@@ -316,36 +323,63 @@ print(results_df)
 # # 8️⃣ Example queries (can be extended)
 # # ----------------------------
 # queries = [
-#     'Can I download PlayStation 3 games for my PlayStation 4',
-#     'Playstation payment problem',
-#     'Downloading games onto a PlayStation 4',
-#     'Dark Souls 2: Xbox360 vs PlayStation 3 vs Xbox One vs PlayStation 4'
+#     "Can I download PlayStation 3 games for my PlayStation 4",
+#     "Playstation payment problem",
+#     "Downloading games onto a PlayStation 4",
+#     "Dark Souls 2: Xbox360 vs PlayStation 3 vs Xbox One vs PlayStation 4",
+#     "GTA V won't load online",
+#     "Trouble downloading GTA5 on XBOX360",
+#     "Is digital download GTA5 Faster than Physical copy?",
+#     "Do I need to be online to play story mode?",
+#     "Do I need to play previous Witchers before Witcher3",
+#     "Witcher 3 crashes constantly",
+#     "Skyrim reinstalling it with all the mods",
+#     "Can I start with Dark souls 2?",
+#     "Defeating Moonlight Butterfly in Dark Souls",
+#     "Max Farming in Dark Souls III",
+#     "What are the different endings of Sekiro?",
+#     "How precise is the Deflect Mechanic in Sekiro?",
+#     "Can you upgrade the horse in Elden Ring?",
+#     "Does dexterity increase weapon art speed in Elden Ring?",
+#     "What happens if you defeat the Grafted Scion in the beginning of Elden Ring?",
+#     "I don't know where to go next in Elden Ring! How do I find out?"
 # ]
 
 # # ----------------------------
-# # 9️⃣ Run evaluation for both models
+# # 9️⃣ Run evaluation for both models (Top-10)
 # # ----------------------------
+# TOP_K = 10  # Evaluate top 10 posts per query
 # all_results = []
 
 # for query in queries:
-#     boolean_docs = boolean_search(query, boolean_index, operator="OR")
-#     tf_docs = tf_ranking(query, tf_index, k=50)
+#     # Retrieve top-k for Boolean retrieval
+#     boolean_docs_full = boolean_search(query, boolean_index, operator="OR")
+#     boolean_docs = list(boolean_docs_full)[:TOP_K]  # Limit to top 10
+
+#     # Retrieve top-k for TF-based ranking
+#     tf_docs = tf_ranking(query, tf_index, k=TOP_K)
 
 #     # Simulate relevance (top-3 as relevant)
 #     relevant_docs = tf_docs[:3]  # assume TF-based ranking relevance
-#     prec5_bool = precision_at_k(list(boolean_docs), relevant_docs, 5)
-#     ndcg5_bool = ndcg_at_k(list(boolean_docs), relevant_docs, 5)
-#     prec5_tf = precision_at_k(tf_docs, relevant_docs, 5)
-#     ndcg5_tf = ndcg_at_k(tf_docs, relevant_docs, 5)
 
+#     # Compute metrics for Boolean
+#     prec_bool = precision_at_k(boolean_docs, relevant_docs, TOP_K)
+#     ndcg_bool = ndcg_at_k(boolean_docs, relevant_docs, TOP_K)
+
+#     # Compute metrics for TF-based ranking
+#     prec_tf = precision_at_k(tf_docs, relevant_docs, TOP_K)
+#     ndcg_tf = ndcg_at_k(tf_docs, relevant_docs, TOP_K)
+
+#     # Store results
 #     all_results.append({
 #         "Query": query,
-#         "Prec5_Boolean": prec5_bool,
-#         "nDCG5_Boolean": ndcg5_bool,
-#         "Prec5_TF": prec5_tf,
-#         "nDCG5_TF": ndcg5_tf
+#         f"Prec@{TOP_K}_Boolean": prec_bool,
+#         f"nDCG@{TOP_K}_Boolean": ndcg_bool,
+#         f"Prec@{TOP_K}_TF": prec_tf,
+#         f"nDCG@{TOP_K}_TF": ndcg_tf
 #     })
 
 # results_df = pd.DataFrame(all_results)
-# print("\n===== Sample Evaluation =====")
+# print(f"\n===== Evaluation Results (Top-{TOP_K}) =====")
 # print(results_df)
+
