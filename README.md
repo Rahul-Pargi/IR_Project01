@@ -3,7 +3,7 @@
 ## 📌 Project Overview
 📌 Project Overview
 
-This project is the **assignment for the M.Tech Information Retrieval course**, part of the **AI program at NIT Agartala**.
+This project is the **assignment for the M.Tech Information Retrieval course**, part of the **AI program at NIT Agartala**. You can also check the assignment pdf in this repository.
  It focuses on building and evaluating an Information Retrieval (IR) System using data from [Gaming StackExchange](https://gaming.stackexchange.com/). The system processes, indexes, and retrieves relevant questions and answers to simulate real-world information-seeking scenarios.
 
 The project demonstrates practical applications of IR concepts such as indexing, querying, ranking, and evaluation. The final evaluation uses a set of 20 manually selected queries, categorized by topics and query lengths, to measure system performance.
