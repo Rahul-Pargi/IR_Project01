@@ -25,13 +25,13 @@ The project demonstrates practical applications of IR concepts such as **indexin
 Follow these steps to set up and run the project in **Google Colab** or a local environment.
 
 ### Step 1: Clone the Repository  
-Run the following command to clone the repository:  
+#### Run the following command to clone the repository:  
 `!git clone https://github.com/Rahul-Pargi/IR_Project01`
 ### Step 2: Setup Environment & Install Dependencies:
-Run the setup script to install required libraries and prepare the dataset (Posts.xml, Comments.xml):
+#### Run the setup script to install required libraries and prepare the dataset (Posts.xml, Comments.xml):
 `!python /content/IR_Project01/collab_setup.py`
 ### Step 3: Change Directory
-Move into the project directory:
+#### Move into the project directory:
 `%cd /content/IR_Project01`
 
 ## Running Analysis Scripts:
