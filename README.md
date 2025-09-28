@@ -20,7 +20,9 @@ The project demonstrates practical applications of IR concepts such as indexing,
   - `seaborn`
   - `lxml`
   - `sqlalchemy`
-- **Dataset**: Gaming StackExchange data dump (.7z archives), including only Posts.xml and Comments.xml. 
+- **Dataset**: Gaming StackExchange data dump (.7z archives), including only Posts.xml and Comments.xml.
+  
+---
 
 ## 🛠️ Getting Started
 
@@ -63,6 +65,8 @@ You can run these below scripts step by step to reproduce the analyses for **all
 ### Question 10: Self-Analysis of IR Project
 `%run /content/IR_Project01/src/q10_self_analysis.py`
 
+---
+
 ## 🔍 Retrieval Models
 This section contains the implementations and evaluation of two Information Retrieval (IR) models: a **Boolean Search System** and a **Term-Frequency (TF) Inverted Index Retrieval System**. These models are applied to the Gaming StackExchange dataset to demonstrate how different retrieval strategies affect the relevance and ranking of results.
 1. The Boolean Search System retrieves posts based on exact keyword matches. It does not rank results, so all matched posts are considered equally relevant.
@@ -75,4 +79,5 @@ This section contains the implementations and evaluation of two Information Retr
 ### Evaluation of Boolean vs Term-Frequency Models
 `%run /content/IR_Project01/src/boolean_tf_ir_evaluation.py`
 
+---
 
