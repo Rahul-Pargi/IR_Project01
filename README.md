@@ -22,7 +22,7 @@ The project demonstrates practical applications of IR concepts such as indexing,
   - `sqlalchemy`
 - **Dataset**: Gaming StackExchange data dump (.7z archives), including only Posts.xml and Comments.xml.
   
----
+----
 
 ## 🛠️ Getting Started
 
