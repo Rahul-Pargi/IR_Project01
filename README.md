@@ -18,7 +18,6 @@ The project demonstrates practical applications of IR concepts such as **indexin
   - `seaborn`
   - `lxml`
   - `sqlalchemy`
-  - `jupyter`
 - **Dataset**: Gaming StackExchange data dump (`.7z` archives)  
 
 ## Getting Started  
