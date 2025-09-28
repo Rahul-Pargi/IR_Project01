@@ -37,31 +37,31 @@ Move into the project directory:
 
 ## Running Analysis Scripts:
 
-Question 1: WordCloud & Zipf’s Law
+### Question 1: WordCloud & Zipf’s Law
 `%run /content/IR_Project01/src/q1_wordcloud_zipf.py`
-Question 2: Most Common Tags
+### Question 2: Most Common Tags
 `!python /content/IR_Project01/src/q2_common_tags.py`
-Question 3 & 4: Average Question Length & Tags
+### Question 3 & 4: Average Question Length & Tags
 `%run /content/IR_Project01/src/q3_q4_avg.py`
-Question 5: Unanswered Questions Analysis
+### Question 5: Unanswered Questions Analysis
 `%run /content/IR_Project01/src/q5_no_answers.py`
-Question 6: Accepted Answer Positions
+### Question 6: Accepted Answer Positions
 `%run /content/IR_Project01/src/q6_accepted_answers.py`
-Question 7: Readability of Questions
+### Question 7: Readability of Questions
 `%run /content/IR_Project01/src/q7_readability.py`
-Question 8: Duplicate Questions Detection
+### Question 8: Duplicate Questions Detection
 `%run /content/IR_Project01/src/q8_duplicate_ques.py`
-Question 9: Impact of Comments
+### Question 9: Impact of Comments
 `%run /content/IR_Project01/src/q9_comments.py`
-Question 10: Self-Analysis of IR Project
+### Question 10: Self-Analysis of IR Project
 `%run /content/IR_Project01/src/q10_self_analysis.py`
 
-### Retrieval Models
-Boolean Search System
+## Retrieval Models
+### Boolean Search System
 `%run /content/IR_Project01/src/boolean_search_inverted_index.py`
-Term-Frequency Inverted Index Retrieval
+### Term-Frequency Inverted Index Retrieval
 `%run /content/IR_Project01/src/term_frequency_inverted_index.py`
-Evaluation of Boolean vs Term-Frequency Models
+### Evaluation of Boolean vs Term-Frequency Models
 `%run /content/IR_Project01/src/boolean_tf_ir_evaluation.py`
 
 
