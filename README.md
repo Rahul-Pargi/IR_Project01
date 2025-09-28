@@ -4,11 +4,9 @@
 📌 Project Overview
 
 This project is the **assignment for the M.Tech Information Retrieval course**, part of the **AI program at NIT Agartala**. You can also check the assignment pdf in this repository.
- It focuses on building and evaluating an Information Retrieval (IR) System using data from [Gaming StackExchange](https://gaming.stackexchange.com/). The system processes, indexes, and retrieves relevant questions and answers to simulate real-world information-seeking scenarios.
+It focuses on building and evaluating an Information Retrieval (IR) System using data from [Gaming StackExchange](https://gaming.stackexchange.com/). The system processes, indexes, and retrieves relevant questions and answers to simulate real-world information-seeking scenarios.
 
 The project demonstrates practical applications of IR concepts such as indexing, querying, ranking, and evaluation. The final evaluation uses a set of 20 manually selected queries, categorized by topics and query lengths, to measure system performance.
-
-
 
 ---
 
@@ -67,6 +65,10 @@ You can run these scripts step by step to reproduce the analyses for **all 10 as
 `%run /content/IR_Project01/src/q10_self_analysis.py`
 
 ## Retrieval Models
+This section contains the implementations and evaluation of two Information Retrieval (IR) models: a **Boolean Search System** and a **Term-Frequency (TF) Inverted Index Retrieval System**. These models are applied to the Gaming StackExchange dataset to demonstrate how different retrieval strategies affect the relevance and ranking of results.
+1. The Boolean Search System retrieves posts based on exact keyword matches. It does not rank results, so all matched posts are considered equally relevant.
+2. The Term-Frequency Inverted Index Retrieval system ranks posts based on how frequently query terms appear, providing more relevant and ordered results compared to exact-match Boolean search.
+You can run these scripts step by step to reproduce the analysis.
 ### Boolean Search System
 `%run /content/IR_Project01/src/boolean_search_inverted_index.py`
 ### Term-Frequency Inverted Index Retrieval
