@@ -68,7 +68,7 @@ You can run these scripts step by step to reproduce the analyses for **all 10 as
 This section contains the implementations and evaluation of two Information Retrieval (IR) models: a **Boolean Search System** and a **Term-Frequency (TF) Inverted Index Retrieval System**. These models are applied to the Gaming StackExchange dataset to demonstrate how different retrieval strategies affect the relevance and ranking of results.
 1. The Boolean Search System retrieves posts based on exact keyword matches. It does not rank results, so all matched posts are considered equally relevant.
 2. The Term-Frequency Inverted Index Retrieval system ranks posts based on how frequently query terms appear, providing more relevant and ordered results compared to exact-match Boolean search.
-You can run these scripts step by step to reproduce the analysis.
+3. You can run these scripts step by step to reproduce the analysis.
 ### Boolean Search System
 `%run /content/IR_Project01/src/boolean_search_inverted_index.py`
 ### Term-Frequency Inverted Index Retrieval
