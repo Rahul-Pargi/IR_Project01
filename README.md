@@ -1,9 +1,13 @@
 # Information Retrieval System on Gaming StackExchange
 
 ## 📌 Project Overview
-This project is the **assignment project for the M.Tech Information Retrieval course**. It focuses on building and evaluating an Information Retrieval (IR) System using data from [Gaming StackExchange](https://gaming.stackexchange.com/). The system processes, indexes, and retrieves relevant questions and answers to simulate real-world information-seeking scenarios.
+📌 Project Overview
+
+This project is the **assignment for the M.Tech Information Retrieval course**, part of the **AI program at NIT Agartala**.
+ It focuses on building and evaluating an Information Retrieval (IR) System using data from [Gaming StackExchange](https://gaming.stackexchange.com/). The system processes, indexes, and retrieves relevant questions and answers to simulate real-world information-seeking scenarios.
 
 The project demonstrates practical applications of IR concepts such as indexing, querying, ranking, and evaluation. The final evaluation uses a set of 20 manually selected queries, categorized by topics and query lengths, to measure system performance.
+
 
 
 ---
