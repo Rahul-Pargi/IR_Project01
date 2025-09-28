@@ -35,7 +35,13 @@ Follow these steps to set up and run the project in **Google Colab** or a local 
 `%cd /content/IR_Project01`
 
 ## Running Analysis Scripts:
-
+This section contains scripts that perform detailed analysis of the **Gaming StackExchange** dataset. Each script corresponds to a specific question in the assignement allowing us to explore patterns and insights.
+You can run these scripts step by step to reproduce the analyses for **all 10 assignment questions**. Each script generates outputs like tables, charts, and logs, helping you understand:  
+1. How questions are structured and tagged.  
+2. Factors that affect whether a question receives answers.  
+3. Common patterns in successful and unanswered questions.  
+4. The overall behavior of the community on Gaming StackExchange
+  
 ### Question 1: WordCloud & Zipf’s Law
 `%run /content/IR_Project01/src/q1_wordcloud_zipf.py`
 ### Question 2: Most Common Tags
