@@ -32,7 +32,7 @@ Run the setup script to install required libraries and prepare the dataset (Post
 `!python /content/IR_Project01/collab_setup.py`
 ### Step 3: Change Directory
 Move into the project directory:
-`Step 3: Change Directory`
+`%cd /content/IR_Project01`
 
 ## Running Analysis Scripts:
 
