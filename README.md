@@ -12,7 +12,7 @@ The project demonstrates practical applications of IR concepts such as indexing,
 ## ⚙️ Development Environment and Project Setup
 
 - **Programming Language**: Python 3.x
--  **Libraries/Dependencies**:
+- **Libraries / Dependencies**:
   - `numpy`
   - `pandas`
   - `scikit-learn`
@@ -20,9 +20,10 @@ The project demonstrates practical applications of IR concepts such as indexing,
   - `seaborn`
   - `lxml`
   - `sqlalchemy`
-- **Dataset**: Gaming StackExchange data dump (.7z archives), including only Posts.xml and Comments.xml.
+- **Dataset**: Gaming StackExchange data dump (`.7z` archives), including only `Posts.xml` and `Comments.xml`.
 
-  ---
+---
+
 
 
 ## 🛠️ Getting Started
