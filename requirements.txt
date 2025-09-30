@@ -11,3 +11,4 @@ scikit-learn
 scipy
 wordcloud
 nltk
+textstat
